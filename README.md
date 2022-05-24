@@ -1,6 +1,6 @@
 # Personal Gallery Web App (PERGA)
 
-Web application that connects to [this](https://github.com/soraiavmv/simple-rest-api) Rest API and let's you upload pictures to an S3 compatible bucket. The previously uploaded pictures are shown
+Web application that connects to a simple rest API and let's you upload pictures to an S3 compatible bucket. The previously uploaded pictures are listed in the main page.
 
 ## Tech Stack
 **Webapp**: NextJS, TypeScript, Emotion
