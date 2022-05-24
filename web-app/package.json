@@ -1,0 +1,59 @@
+{
+  "name": "perga-webapp",
+  "version": "0.1.0",
+  "private": true,
+  "author": "soraiavmv",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ./src --ext .ts,.tsx --ignore-path .gitignore",
+    "format": "prettier --config .prettierrc 'src/**/*{ts,tsx}' --write"
+  },
+  "dependencies": {
+    "@emotion/css": "^11.9.0",
+    "@emotion/react": "^11.9.0",
+    "@emotion/styled": "^11.8.1",
+    "@types/express": "^4.17.13",
+    "@types/minio": "^7.0.13",
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.0",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "next": "12.1.6",
+    "react": "18.1.0",
+    "react-burger-menu": "^3.0.8",
+    "react-dom": "18.1.0",
+    "react-loading-skeleton": "^3.1.0",
+    "react-spinners": "^0.12.0",
+    "react-tsparticles": "^2.0.6",
+    "tsparticles": "^2.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "17.0.34",
+    "@types/react": "18.0.9",
+    "@types/react-burger-menu": "^2.8.3",
+    "@types/react-dom": "18.0.4",
+    "@typescript-eslint/eslint-plugin": "^5.25.0",
+    "eslint": "8.15.0",
+    "eslint-config-next": "12.1.6",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.6.2",
+    "typescript": "4.6.4"
+  },
+  "browserslist": {
+    "production": [
+      "> 5%",
+      "not dead",
+      "not ie <= 11",
+      "not op_mini all"
+    ],
+    "development": [
+      "> 5%",
+      "not dead",
+      "not ie <= 11",
+      "not op_mini all"
+    ]
+  }
+}
