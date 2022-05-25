@@ -7,32 +7,28 @@ import minioClient from '../middleware/minio';
 class MinioController {
   uploadFile(req: Request, res: Response) {
     const bb = busboy({ headers: req.headers });
-    console.log('headers -->', req.headers);
 
     bb.on('file', (name, file, info) => {
-      const { filename, encoding, mimeType } = info; // will be important later
-      console.log(
-        `File [${name}]: filename: %j, encoding: %j, mimeType: %j`,
-        filename,
-        encoding,
-        mimeType
-      );
+      const { mimeType } = info;
 
+      if (mimeType.split('/')[0] !== 'image') {
+        return res.status(400).json({
+          message: 'Error uploading file'
+        });
+      }
       minioClient.putObject(config.minio.BUCKET, name, file);
-    });
-
-    bb.on('error', () => {
-      res.status(500).json({
-        message: 'Error uploading file'
+    })
+      .on('error', () => {
+        res.status(500).json({
+          message: 'Error uploading file'
+        });
+      })
+      .on('close', () => {
+        res.status(201).json({
+          message: 'File successfully uploaded'
+        });
+        res.end();
       });
-    });
-
-    bb.on('close', () => {
-      res.status(201).json({
-        message: 'File successfully uploaded'
-      });
-      res.end();
-    });
 
     req.pipe(bb);
   }
