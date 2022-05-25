@@ -2,7 +2,7 @@ import { MinioControllerInstance } from './controllers';
 import Multer from 'multer';
 import { config } from './config';
 import cors from 'cors';
-import express from 'express';
+import express, { Express } from 'express';
 import minioClient from './middleware/minio';
 
 const startServer = async () => {
@@ -29,7 +29,6 @@ const startServer = async () => {
     }
 
     const bucket = buckets.filter((bucket) => bucket.name === BUCKET);
-    let readyToListen = false;
 
     // check if bucket exists, create it if it doesn't
     if (bucket.length === 0) {
@@ -38,23 +37,22 @@ const startServer = async () => {
           console.log('Error creating bucket: ', err);
           return;
         }
+        listen(app, PORT);
         console.log('Bucket created successfully: ', BUCKET);
-        readyToListen = true;
       });
     } else {
-      readyToListen = true;
-    }
-
-    // start server
-    if (readyToListen) {
-      console.log('Connecting...');
-      app.listen(PORT, function () {
-        console.log(`~~ 👂 LISTENING ON PORT ${PORT} 👂 ~~`);
-      });
+      listen(app, PORT);
     }
   });
 
   return app;
 };
+
+const listen = (app: Express, PORT: number) => {
+  console.log('Connecting...');
+  app.listen(PORT, function () {
+    console.log(`~~ 👂 LISTENING ON PORT ${PORT} 👂 ~~`);
+  });
+}
 
 startServer().catch(console.error);
