@@ -34,7 +34,6 @@ services:
     ports:
       - "3000:3000"
     container_name: nextjs-ui
-    stdin_open: true
     volumes:
        - ./web-app:/src/
        - /src/node_modules
