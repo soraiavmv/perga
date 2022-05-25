@@ -43,9 +43,9 @@ const Main: NextPage = () => {
             setPictures(urls);
             if (loading) setLoading(false);
           }
-        } 
+        }
       } catch (e) {
-        if(!pics) setPictures([]);
+        if (!pics) setPictures([]);
       }
     })();
   }, [lastUploaded, loading, pics]);

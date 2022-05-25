@@ -8,17 +8,21 @@ class MinioController {
   uploadFile(req: Request, res: Response) {
     const bb = busboy({ headers: req.headers });
 
-    bb.on('file', (name, file, info) => {
+    bb.on('file', (_name, file, info) => {
       const { mimeType, filename } = info;
 
       if (mimeType.split('/')[0] !== 'image') {
+        console.log('Error fetching files: Invalid file format');
         return res.status(400).json({
-          message: 'Error uploading file'
+          message: 'Error uploading file',
+          cause: 'Invalid file format'
         });
       }
       minioClient.putObject(config.minio.BUCKET, filename, file);
     })
-      .on('error', () => {
+      .on('error', (error) => {
+        console.log('Error uploading files: \n', error);
+
         res.status(500).json({
           message: 'Error uploading file'
         });
@@ -33,50 +37,45 @@ class MinioController {
     req.pipe(bb);
   }
 
-  async getImages(_req: Request, res: Response) {
+  getFileNames(_req: Request, res: Response) {
+    const stream = minioClient.listObjectsV2(config.minio.BUCKET, '', true, '');
     const data: string[] = [];
-    const stream = minioClient.listObjectsV2(config.minio.BUCKET, '', true, ''); // get file names to later fetch the actual files
-    const pictures: any[] = [];
 
     stream
       .on('data', (obj: BucketItem) => {
-        data.push(obj.name); // save fetched objects
+        data.push(obj.name);
       })
-      .on('end', () => {
-        data.forEach((filename) =>
-          minioClient.getObject(
-            config.minio.BUCKET,
-            filename,
-            async (error, dataStream) => {
-              if (error) {
-                console.log('Error fetching file: \n', error);
-                return;
-              }
+      .on('end', () => res.send(data))
+      .on('error', (error) => {
+        console.log('Error fetching files information from MinIo: \n', error);
 
-              const picture: any[] = [];
-
-              dataStream
-                .on('data', (data) => {
-                  picture.push(...data);
-                })
-                .on('end', () => {
-                  pictures.push(picture);
-
-                  if (pictures.length === data.length) {
-                    res.send(pictures);
-                  }
-                });
-            }
-          )
-        );
-        if (data.length === 0) res.send([]);
-      })
-      .on('error', (err) => {
-        console.log('Error fetching files information from MinIo:', err);
         res.status(500).json({
-          message: 'An error occurred while fetching files.'
+          message: 'An error occurred while fetching file names.'
         });
       });
+  }
+
+  async getImage(req: Request, res: Response) {
+    const { name } = req.params;
+    minioClient.getObject(
+      config.minio.BUCKET,
+      name,
+      async (error, dataStream) => {
+        if (error) {
+          console.log('Error fetching file: \n', error);
+          res.status(404).json({ message: 'File Not Found' });
+          return;
+        }
+
+        dataStream.on('error', (err) => {
+          console.log('Error fetching files information from MinIo: \n', err);
+          res.status(500).json({
+            message: 'An error occurred while fetching files.'
+          });
+        });
+        dataStream.pipe(res);
+      }
+    );
   }
 }
 

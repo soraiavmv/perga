@@ -12,9 +12,10 @@ const startServer = async () => {
   app.use(express.json());
   app.use(cors());
 
+  // routes
   app.post('/new-picture', MinioControllerInstance.uploadFile);
-
-  app.get('/list-pictures', MinioControllerInstance.getImages);
+  app.get('/pictures/:name', MinioControllerInstance.getImage);
+  app.get('/file-names', MinioControllerInstance.getFileNames);
 
   // setup MinIo bucket
   minioClient.listBuckets((err, buckets) => {
