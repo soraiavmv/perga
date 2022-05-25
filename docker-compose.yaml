@@ -24,11 +24,17 @@ services:
     depends_on:
       minio1:
         condition: service_healthy
+    volumes:
+       - ./api:/src/
+       - /src/node_modules
   nextjs-ui:
     build:
       context: ./web-app
     ports:
       - "3000:3000"
     container_name: nextjs-ui
+    volumes:
+       - ./web-app:/src/
+       - /src/node_modules
 volumes:
   data1-1:

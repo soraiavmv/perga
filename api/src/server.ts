@@ -1,6 +1,5 @@
 import express, { Express } from 'express';
 import { MinioControllerInstance } from './controllers';
-import Multer from 'multer';
 import { config } from './config';
 import cors from 'cors';
 import minioClient from './middleware/minio';
@@ -13,11 +12,7 @@ const startServer = async () => {
   app.use(express.json());
   app.use(cors());
 
-  app.post(
-    '/new-picture',
-    Multer({ storage: Multer.memoryStorage() }).single('upload'),
-    MinioControllerInstance.uploadFile
-  );
+  app.post('/new-picture', MinioControllerInstance.uploadFile);
 
   app.get('/list-pictures', MinioControllerInstance.getImages);
 

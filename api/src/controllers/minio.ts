@@ -1,29 +1,40 @@
 import { Request, Response } from 'express';
 import { BucketItem } from 'minio';
+import busboy from 'busboy';
 import { config } from '../config';
 import minioClient from '../middleware/minio';
 
 class MinioController {
   uploadFile(req: Request, res: Response) {
-    if (req && req.file) {
-      minioClient.putObject(
-        config.minio.BUCKET,
-        req.file.originalname,
-        req.file.buffer,
-        (error) => {
-          if (error) {
-            console.log('Error uploading file: \n', error);
-            res.status(500).json({
-              message: 'Error uploading file'
-            });
-            return;
-          }
-          res.json({
-            message: 'File successfully uploaded'
-          });
-        }
+    const bb = busboy({ headers: req.headers });
+    console.log('headers -->', req.headers);
+
+    bb.on('file', (name, file, info) => {
+      const { filename, encoding, mimeType } = info; // will be important later
+      console.log(
+        `File [${name}]: filename: %j, encoding: %j, mimeType: %j`,
+        filename,
+        encoding,
+        mimeType
       );
-    }
+
+      minioClient.putObject(config.minio.BUCKET, name, file);
+    });
+
+    bb.on('error', () => {
+      res.status(500).json({
+        message: 'Error uploading file'
+      });
+    });
+
+    bb.on('close', () => {
+      res.status(201).json({
+        message: 'File successfully uploaded'
+      });
+      res.end();
+    });
+
+    req.pipe(bb);
   }
 
   async getImages(_req: Request, res: Response) {
@@ -33,7 +44,7 @@ class MinioController {
 
     stream
       .on('data', (obj: BucketItem) => {
-        data.push(obj.name); // save fetched objects 
+        data.push(obj.name); // save fetched objects
       })
       .on('end', () => {
         data.forEach((filename) =>
