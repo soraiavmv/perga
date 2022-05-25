@@ -9,14 +9,14 @@ class MinioController {
     const bb = busboy({ headers: req.headers });
 
     bb.on('file', (name, file, info) => {
-      const { mimeType } = info;
+      const { mimeType, filename } = info;
 
       if (mimeType.split('/')[0] !== 'image') {
         return res.status(400).json({
           message: 'Error uploading file'
         });
       }
-      minioClient.putObject(config.minio.BUCKET, name, file);
+      minioClient.putObject(config.minio.BUCKET, filename, file);
     })
       .on('error', () => {
         res.status(500).json({
