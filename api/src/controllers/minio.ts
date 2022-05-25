@@ -13,7 +13,7 @@ class MinioController {
         (error) => {
           if (error) {
             console.log('Error uploading file: \n', error);
-            res.status(400).json({
+            res.status(500).json({
               message: 'Error uploading file'
             });
             return;

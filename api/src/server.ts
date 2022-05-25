@@ -28,10 +28,10 @@ const startServer = async () => {
       return;
     }
 
-    const bucket = buckets.filter((bucket) => bucket.name === BUCKET);
+    const result = buckets.filter((bucket) => bucket.name === BUCKET);
 
     // check if bucket exists, create it if it doesn't
-    if (bucket.length === 0) {
+    if (result.length === 0) {
       minioClient.makeBucket(BUCKET, '', (err) => {
         if (err) {
           console.log('Error creating bucket: ', err);
