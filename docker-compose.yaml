@@ -4,7 +4,6 @@ services:
     image: minio/minio:RELEASE.2022-05-23T18-45-11Z 
     volumes:
       - data1-1:/data1
-      - data1-2:/data2
     ports:
       - "9000:9000"
     environment:
@@ -22,9 +21,6 @@ services:
     ports:
       - "8000:8000"
     container_name: rest-api
-    volumes:
-       - ./api:/src/
-       - /src/node_modules
     depends_on:
       minio1:
         condition: service_healthy
@@ -34,9 +30,5 @@ services:
     ports:
       - "3000:3000"
     container_name: nextjs-ui
-    volumes:
-       - ./web-app:/src/
-       - /src/node_modules
 volumes:
   data1-1:
-  data1-2:

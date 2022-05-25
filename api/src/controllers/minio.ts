@@ -27,19 +27,19 @@ class MinioController {
   }
 
   async getImages(_req: Request, res: Response) {
-    const data: BucketItem[] = [];
+    const data: string[] = [];
     const stream = minioClient.listObjectsV2(config.minio.BUCKET, '', true, ''); // get file names to later fetch the actual files
     const pictures: any[] = [];
 
     stream
       .on('data', (obj: BucketItem) => {
-        data.push(obj);
+        data.push(obj.name); // save fetched objects 
       })
       .on('end', () => {
-        data.forEach((element) =>
+        data.forEach((filename) =>
           minioClient.getObject(
             config.minio.BUCKET,
-            element.name,
+            filename,
             async (error, dataStream) => {
               if (error) {
                 console.log('Error fetching file: \n', error);

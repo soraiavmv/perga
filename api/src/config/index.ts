@@ -14,6 +14,6 @@ export const config = {
     SECRET: String(process.env.SECRET_KEY) || 'minio123',
     BUCKET: String(process.env.BUCKET) || 'perga',
     MINIO_PORT: Number(process.env.MINIO_PORT) || 9000,
-    ENDPOINT: String(process.env.ENDPOINT || 'host.docker.internal')
+    ENDPOINT: String(process.env.ENDPOINT || 'minio1')
   }
 };
