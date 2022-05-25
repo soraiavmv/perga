@@ -1,8 +1,8 @@
+import express, { Express } from 'express';
 import { MinioControllerInstance } from './controllers';
 import Multer from 'multer';
 import { config } from './config';
 import cors from 'cors';
-import express, { Express } from 'express';
 import minioClient from './middleware/minio';
 
 const startServer = async () => {
@@ -53,6 +53,6 @@ const listen = (app: Express, PORT: number) => {
   app.listen(PORT, function () {
     console.log(`~~ 👂 LISTENING ON PORT ${PORT} 👂 ~~`);
   });
-}
+};
 
 startServer().catch(console.error);
