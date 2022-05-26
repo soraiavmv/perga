@@ -44,6 +44,7 @@ const Main: NextPage = () => {
           <input
             type="file"
             id="file"
+            accept="image/png, image/jpeg"
             ref={inputFile}
             onChange={onChange}
             style={{ display: 'none' }}
