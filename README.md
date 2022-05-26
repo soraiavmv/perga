@@ -3,10 +3,10 @@
 Web application that connects to a simple rest API and let's you upload pictures to an S3 compatible bucket. The previously uploaded pictures are listed in the main page.
 
 ## Tech Stack
-**Webapp**: NextJS, TypeScript, Emotion
-**API**: NodeJS + Express, TypeScript, MinIo Client
-**Object Storage**: MinIo
-**Containerization**: Docker compose
+ - **Webapp**: NextJS, TypeScript, Emotion
+ - **API**: NodeJS + Express, TypeScript, MinIo Client
+ - **Object Storage**: MinIo
+ - **Containerization**: Docker compose
 
 ## Screen examples
 ### Welcome Screen
