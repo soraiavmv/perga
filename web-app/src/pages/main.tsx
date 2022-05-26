@@ -1,8 +1,7 @@
 import 'react-loading-skeleton/dist/skeleton.css';
-import { BaseSyntheticEvent, useEffect, useRef, useState } from 'react';
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { BaseSyntheticEvent, useRef, useState } from 'react';
 import BaseLayout from '../layouts/base';
-import GalleryPicture from '../components/gallery-picture';
+import Gallery from '../components/gallery';
 import Image from 'next/image';
 import Loader from '../components/loader';
 import MainPageTopContent from '../components/main-screen-top-content';
@@ -14,41 +13,7 @@ import styled from '@emotion/styled';
 
 const Main: NextPage = () => {
   const inputFile = useRef<HTMLInputElement | null>(null);
-  const [pics, setPictures] = useState<string[]>();
-  const [lastUploaded, setLastUploaded] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await axios.get(
-          `${config.api.API_BASE_URL}/list-pictures`
-        );
-        const urls: string[] = [];
-
-        if (!pics && response && !response.data) {
-          setPictures([]);
-        }
-
-        if (response && response.data) {
-          response.data.forEach((element: Iterable<number>) => {
-            const blob = new Blob([new Uint8Array(element).buffer], {
-              type: 'image/png'
-            });
-            const url = URL.createObjectURL(blob);
-            urls.push(url);
-          });
-
-          if (urls.length !== pics?.length || !pics) {
-            setPictures(urls);
-            if (loading) setLoading(false);
-          }
-        }
-      } catch (e) {
-        if (!pics) setPictures([]);
-      }
-    })();
-  }, [lastUploaded, loading, pics]);
 
   const onButtonClick = () => {
     inputFile?.current?.click();
@@ -63,14 +28,7 @@ const Main: NextPage = () => {
     const body = new FormData();
     body.append('upload', file);
 
-    const result = await axios.post(
-      `${config.api.API_BASE_URL}/new-picture`,
-      body
-    );
-
-    if (result) {
-      setLastUploaded(file.name);
-    }
+    await axios.post(`${config.api.API_BASE_URL}/new-picture`, body);
   };
 
   return (
@@ -92,25 +50,7 @@ const Main: NextPage = () => {
           />
           <Button onClick={onButtonClick}>ADD NEW PHOTO</Button>
         </TopContent>
-        {pics &&
-          pics.map((url, index) => (
-            <GalleryPicture key={`picture-${index}`} url={url} index={index} />
-          ))}
-        {!pics && (
-          <SkeletonTheme height="350px" width="350px" inline={true}>
-            <div>
-              <Skeleton count={6} style={{ margin: '10px 20px' }} />
-            </div>
-          </SkeletonTheme>
-        )}
-        {pics && pics.length === 0 && (
-          <div>
-            <Message>Nothing to show, here.</Message>
-            <SubMessage>
-              Upload a new picture to start creating your gallery!
-            </SubMessage>
-          </div>
-        )}
+        <Gallery loading={loading} setLoading={setLoading} />
       </PageContent>
     </BaseLayout>
   );
@@ -140,20 +80,6 @@ const Button = styled.button`
   height: 35px;
   width: 140px;
   margin: 10px 0px;
-`;
-
-const Message = styled.p`
-  font-size: ${({ theme }) => theme.fontSize.subtitle};
-  color: ${({ theme }) => theme.colors.brown};
-  font-family: ${({ theme }) => theme.fontFamily.Barlow.regular};
-  padding-top: 10px;
-`;
-
-const SubMessage = styled.p`
-  font-size: ${({ theme }) => theme.fontSize.base};
-  color: ${({ theme }) => theme.colors.brown};
-  margin-top: -30px;
-  font-family: ${({ theme }) => theme.fontFamily.Barlow.regular};
 `;
 
 export default Main;

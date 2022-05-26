@@ -61,7 +61,7 @@ class MinioController {
 
     stream
       .on('data', (obj: BucketItem) => {
-        data.push(obj.name);
+        if (obj.name.includes('thumbnail')) data.push(obj.name);
       })
       .on('end', () => res.send(data))
       .on('error', (error) => {
