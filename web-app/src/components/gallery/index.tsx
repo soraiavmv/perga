@@ -12,7 +12,7 @@ interface IGalleryProps {
 
 const Gallery: FC<IGalleryProps> = ({ loading, setLoading }) => {
   const [pics, setPictures] = useState<string[]>([]);
-  const [filenames, setFileNames] = useState<string[]>([]);
+  const [filenames, setFileNames] = useState<string[]>();
   const [error, setError] = useState<boolean>(false);
 
   useEffect(() => {
@@ -34,11 +34,11 @@ const Gallery: FC<IGalleryProps> = ({ loading, setLoading }) => {
   }, []);
 
   useEffect(() => {
-    if (filenames.length !== pics.length) {
+    if (filenames?.length !== pics.length || loading) {
       (async () => {
         try {
           const urls: string[] = [];
-          for (const filename of filenames) {
+          for (const filename of filenames || []) {
             const response = await axios.get(
               `${config.api.API_BASE_URL}/pictures/${filename}`,
               { responseType: 'blob' }
@@ -52,9 +52,9 @@ const Gallery: FC<IGalleryProps> = ({ loading, setLoading }) => {
           }
 
           setPictures(urls);
-          if (loading) setLoading(false);
+          setLoading(false);
         } catch (e) {
-          if (loading) setLoading(false);
+          setLoading(false);
           setError(true);
         }
       })();
@@ -65,10 +65,8 @@ const Gallery: FC<IGalleryProps> = ({ loading, setLoading }) => {
     <>
       {error ? (
         <div>
-          <Message>Nothing to show, here.</Message>
-          <SubMessage>
-            Upload a new picture to start creating your gallery!
-          </SubMessage>
+          <Message>Something went wrong...</Message>
+          <SubMessage>Please try again, later.</SubMessage>
         </div>
       ) : (
         <>
@@ -80,14 +78,15 @@ const Gallery: FC<IGalleryProps> = ({ loading, setLoading }) => {
                 index={index}
               />
             ))}
-          {!filenames && (
+          {(!filenames ||
+            (filenames && filenames.length > 0 && pics.length === 0)) && (
             <SkeletonTheme height="350px" width="350px" inline={true}>
               <div>
                 <Skeleton count={6} style={{ margin: '10px 20px' }} />
               </div>
             </SkeletonTheme>
           )}
-          {filenames && pics.length === 0 && (
+          {filenames && filenames.length === 0 && pics.length === 0 && (
             <div>
               <Message>Nothing to show, here.</Message>
               <SubMessage>
