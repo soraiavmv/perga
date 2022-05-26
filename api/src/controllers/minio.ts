@@ -3,6 +3,7 @@ import { BucketItem } from 'minio';
 import busboy from 'busboy';
 import { config } from '../config';
 import minioClient from '../middleware/minio';
+import sharp from 'sharp';
 
 class MinioController {
   uploadFile(req: Request, res: Response) {
@@ -12,13 +13,30 @@ class MinioController {
       const { mimeType, filename } = info;
 
       if (mimeType.split('/')[0] !== 'image') {
-        console.log('Error fetching files: Invalid file format');
+        console.log('Error uploading file: Invalid file format');
         return res.status(400).json({
           message: 'Error uploading file',
           cause: 'Invalid file format'
         });
       }
-      minioClient.putObject(config.minio.BUCKET, filename, file);
+      const splitFilename = filename.split('.');
+
+      try {
+        minioClient.putObject(config.minio.BUCKET, filename, file);
+
+        const transformer = sharp().resize(300, 300);
+
+        minioClient.putObject(
+          config.minio.BUCKET,
+          `${splitFilename[0]}-thumbnail.${splitFilename[1]}`,
+          file.pipe(transformer)
+        );
+      } catch (err) {
+        console.log('Error uploading files:', err);
+        return res.status(500).json({
+          message: 'Error uploading file'
+        });
+      }
     })
       .on('error', (error) => {
         console.log('Error uploading files: \n', error);
