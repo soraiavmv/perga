@@ -31,7 +31,7 @@ const Gallery: FC<IGalleryProps> = ({ loading, setLoading }) => {
         setError(true);
       }
     })();
-  }, []);
+  }, [loading]);
 
   useEffect(() => {
     if (filenames?.length !== pics.length || loading) {
@@ -39,6 +39,7 @@ const Gallery: FC<IGalleryProps> = ({ loading, setLoading }) => {
         try {
           const urls: string[] = [];
           for (const filename of filenames || []) {
+            console.log('no for');
             const response = await axios.get(
               `${config.api.API_BASE_URL}/pictures/${filename}`,
               { responseType: 'blob' }
