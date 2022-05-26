@@ -46,7 +46,6 @@ const Gallery: FC<IGalleryProps> = ({ loading, setLoading }) => {
             if (response && response.data) {
               const url = URL.createObjectURL(response.data);
               urls.push(url);
-              console.log(url);
             }
           }
 
@@ -69,11 +68,13 @@ const Gallery: FC<IGalleryProps> = ({ loading, setLoading }) => {
         </div>
       ) : (
         <>
-          {pics.length > 0 &&
+          {filenames &&
+            pics.length > 0 &&
             pics.map((url, index) => (
               <GalleryPicture
                 key={`picture-${index}`}
                 url={url}
+                imageUrl={filenames[index]}
                 index={index}
               />
             ))}
