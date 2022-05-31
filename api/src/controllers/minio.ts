@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { BucketItem } from 'minio';
+import { PassThrough } from 'stream';
 import busboy from 'busboy';
 import { config } from '../config';
 import ffmpeg from '../middleware/ffmpeg';
-import fs from 'fs';
 import minioClient from '../middleware/minio';
 import sharp from 'sharp';
 
@@ -77,36 +77,19 @@ class MinioController {
         // upload video
         minioClient.putObject(config.minio.BUCKET, filename, file);
 
-        // create temporary file with screenshot
-        await new Promise((resolve, reject) => {
-          ffmpeg(file)
-            .on('end', resolve)
-            .on('error', reject)
-            .outputOptions([
-              '-vframes 1',
-              '-vcodec png',
-              '-f rawvideo',
-              '-s 300x300',
-              '-ss 00:00:01'
-            ])
-            .output(`${splitFilename[0]}-thumbnail${'.png'}`)
-            .run();
-        });
+        // transformer to create video screenshot
+        const transformer = ffmpeg(file)
+          .seekOutput('00:00:01')
+          .frames(1)
+          .format('image2pipe')
+          .size('300x300');
 
-        // save screenshot in minio bucket
+        // save screenshot to minio bucket
         await minioClient.putObject(
           config.minio.BUCKET,
           `${splitFilename[0]}-thumbnail${'.png'}`,
-          fs.createReadStream(`${splitFilename[0]}-thumbnail${'.png'}`)
+          transformer.pipe() as PassThrough
         );
-
-        // delete temp file
-        fs.unlink(`${splitFilename[0]}-thumbnail${'.png'}`, (err) => {
-          if (err) {
-            console.error('Error deleting temp file:', err);
-            return;
-          }
-        });
       } catch (err) {
         console.log('Error uploading files:', err);
         return res.status(500).json({
