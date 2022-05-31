@@ -23,7 +23,7 @@ const GalleryDialog: FC<IGalleryDialogProps> = ({
       try {
         const splitUrl = imageUrl.split('-thumbnail');
         const response = await axios.get(
-          `${config.api.API_BASE_URL}/pictures/${splitUrl[0]}${splitUrl[1]}`,
+          `${config.api.API_BASE_URL}/files/${splitUrl[0]}${splitUrl[1]}`,
           { responseType: 'blob' }
         );
 

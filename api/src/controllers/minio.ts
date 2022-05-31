@@ -131,7 +131,7 @@ class MinioController {
       });
   }
 
-  async getImage(req: Request, res: Response) {
+  async getFile(req: Request, res: Response) {
     const { name } = req.params;
     minioClient.getObject(
       config.minio.BUCKET,

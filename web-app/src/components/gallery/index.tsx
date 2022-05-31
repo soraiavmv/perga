@@ -39,7 +39,7 @@ const Gallery: FC<IGalleryProps> = ({ loading, setLoading }) => {
           const urls: string[] = [];
           for (const filename of filenames || []) {
             const response = await axios.get(
-              `${config.api.API_BASE_URL}/pictures/${filename}`,
+              `${config.api.API_BASE_URL}/files/${filename}`,
               { responseType: 'blob' }
             );
 

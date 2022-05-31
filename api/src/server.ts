@@ -15,7 +15,7 @@ const startServer = async () => {
   // routes
   app.post('/new-picture', MinioControllerInstance.uploadPhoto);
   app.post('/new-video', MinioControllerInstance.uploadVideo);
-  app.get('/pictures/:name', MinioControllerInstance.getImage);
+  app.get('/files/:name', MinioControllerInstance.getFile);
   app.get('/file-names', MinioControllerInstance.getFileNames);
 
   // setup MinIo bucket
