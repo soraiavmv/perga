@@ -2,11 +2,13 @@ import { Request, Response } from 'express';
 import { BucketItem } from 'minio';
 import busboy from 'busboy';
 import { config } from '../config';
+import ffmpeg from '../middleware/ffmpeg';
+import fs from 'fs';
 import minioClient from '../middleware/minio';
 import sharp from 'sharp';
 
 class MinioController {
-  uploadFile(req: Request, res: Response) {
+  uploadPhoto(req: Request, res: Response) {
     const bb = busboy({ headers: req.headers });
 
     bb.on('file', (_name, file, info) => {
@@ -41,6 +43,79 @@ class MinioController {
       .on('error', (error) => {
         console.log('Error uploading files: \n', error);
 
+        res.status(500).json({
+          message: 'Error uploading file'
+        });
+      })
+      .on('close', () => {
+        res.status(201).json({
+          message: 'File successfully uploaded'
+        });
+        res.end();
+      });
+
+    req.pipe(bb);
+  }
+
+  uploadVideo(req: Request, res: Response) {
+    const bb = busboy({ headers: req.headers });
+
+    bb.on('file', async (_name, file, info) => {
+      const { mimeType, filename } = info;
+
+      if (mimeType.split('/')[0] !== 'video') {
+        console.log('Error uploading file: Invalid file format');
+        return res.status(400).json({
+          message: 'Error uploading file',
+          cause: 'Invalid file format'
+        });
+      }
+
+      const splitFilename = filename.split('.');
+
+      try {
+        // upload video
+        minioClient.putObject(config.minio.BUCKET, filename, file);
+
+        // create temporary file with screenshot
+        await new Promise((resolve, reject) => {
+          ffmpeg(file)
+            .on('end', resolve)
+            .on('error', reject)
+            .outputOptions([
+              '-vframes 1',
+              '-vcodec png',
+              '-f rawvideo',
+              '-s 300x300',
+              '-ss 00:00:01'
+            ])
+            .output(`${splitFilename[0]}-thumbnail${'.png'}`)
+            .run();
+        });
+
+        // save screenshot in minio bucket
+        await minioClient.putObject(
+          config.minio.BUCKET,
+          `${splitFilename[0]}-thumbnail${'.png'}`,
+          fs.createReadStream(`${splitFilename[0]}-thumbnail${'.png'}`)
+        );
+
+        // delete temp file
+        fs.unlink(`${splitFilename[0]}-thumbnail${'.png'}`, (err) => {
+          if (err) {
+            console.error('Error deleting temp file:', err);
+            return;
+          }
+        });
+      } catch (err) {
+        console.log('Error uploading files:', err);
+        return res.status(500).json({
+          message: 'Error uploading file'
+        });
+      }
+    })
+      .on('error', (error) => {
+        console.log('Error uploading files: \n', error);
         res.status(500).json({
           message: 'Error uploading file'
         });

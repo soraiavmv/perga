@@ -13,7 +13,8 @@ const startServer = async () => {
   app.use(cors());
 
   // routes
-  app.post('/new-picture', MinioControllerInstance.uploadFile);
+  app.post('/new-picture', MinioControllerInstance.uploadPhoto);
+  app.post('/new-video', MinioControllerInstance.uploadVideo);
   app.get('/pictures/:name', MinioControllerInstance.getImage);
   app.get('/file-names', MinioControllerInstance.getFileNames);
 
